@@ -5,6 +5,10 @@
 #Suggested to keybind the script so you can quickly capture video clips. Press the key once to start
 #and then once again to stop recording. 
 
+##DEBUGGING SHIT
+exec > >(tee ~/pushwebm.log)
+exec 2>&1
+
 ##USER TUNABLES##
 ##Generic Settings
 #Enable or disable notifications (both enabled by default)
@@ -35,7 +39,7 @@ audio_channels="2"
 #Alsa users: whatever recording device you wish, microphone or otherwise, you can also use snd-aloop to create a monitor
 #Pulse users: you should be able to set this to pulse and then use pavucontrol (or whatever) to select a recording device
 #You should be able to figure this out with arecord -l, hw:<card>,<device> for ALSA.
-audio_device="hw:1,1" 
+audio_device="pulse"
 audio_samplerate="44100"
 audio_bitrate="128k"
 
@@ -44,6 +48,7 @@ limit_res=true
 
 
 #Don't Touch these variables
+keyframes=$((framerate*2))
 friendlytitle=$(xprop -id `xprop -root | grep "_NET_ACTIVE_WINDOW(WINDOW)" | awk '{print $5}'` | grep "WM_CLASS(STRING)" | sed -e 's/.*= "\([^"]*\)".*/\1/')
 filename="${friendlytitle} on ${timestamp}.$video_container"
 maxresx=$(xdotool getdisplaygeometry | awk '{print $1}')
@@ -84,7 +89,7 @@ if [ ! -f /tmp/.record ];then
 	
 	tmp_name="/tmp/${filename}"
 
-	ffmpeg_command=$(echo "ffmpeg -y -video_size $size -framerate $framerate -f x11grab -i $DISPLAY+$x,$y -f alsa -ac $audio_channels -i $audio_device -vcodec $video_codec -preset $video_codec_preset -acodec $audio_codec -ar $audio_samplerate -ab $audio_bitrate \"$tmp_name\"&")
+	ffmpeg_command=$(echo "ffmpeg -y -video_size $size -framerate $framerate -f x11grab -i $DISPLAY+$x,$y -f alsa -ac $audio_channels -i $audio_device -vcodec $video_codec -preset $video_codec_preset -acodec $audio_codec -ar $audio_samplerate -ab $audio_bitrate -g $keyframes \"$tmp_name\"&")
 	eval "$ffmpeg_command"
 
 	FFMPEG_PID=$!
