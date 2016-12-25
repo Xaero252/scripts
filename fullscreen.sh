@@ -1,8 +1,6 @@
 #!/bin/bash
 #"Borderless Fullscreen" automatic toggling script
 #By Xaero252 @ OCN (overclock.net)
-#Distributed with the "don't be a douche" license
-#Just don't try and claim you thought this up or whatever
 
 #Let's make sure we aren't already running
 pidof -s -o '%PPID' -x $( basename $0 ) > /dev/null 2>&1 && exit
